@@ -1,10 +1,10 @@
 import mesa
 
-from agent import InfotaxisAgent
+from agent import IceFisherAgent
 
 
-class IceFishers(mesa.Model):
-    def __init__(self, n_agents=5, width=100, height=100):
+class IceFishingModel(mesa.Model):
+    def __init__(self, width=100, height=100, n_agents=5):
         self.n_agents = n_agents
         self.grid = mesa.space.MultiGrid(width, height, torus=False)
         self.schedule = mesa.time.RandomActivation(self)
@@ -12,7 +12,7 @@ class IceFishers(mesa.Model):
 
         # Create agents
         for i in range(self.n_agents):
-            a = InfotaxisAgent(i, self)
+            a = IceFisherAgent(i, self)
             self.schedule.add(a)
 
             # Add the agent to a random grid cell
