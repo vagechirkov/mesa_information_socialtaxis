@@ -16,8 +16,10 @@ class IceFishingModel(mesa.Model):
             self.schedule.add(a)
 
             # Add the agent to a random grid cell
-            x = self.random.randrange(self.grid.width)
-            y = self.random.randrange(self.grid.height)
+            # x = self.random.randrange(self.grid.width)
+            # y = self.random.randrange(self.grid.height)
+            x = width // 2
+            y = 0
             self.grid.place_agent(a, (x, y))
 
     def step(self):
