@@ -42,8 +42,9 @@ class IceFisherAgent(mesa.Agent):
         self.fishing_time += 1
 
         # catch fish with probability p
-        p = 0.5
-        if np.random.rand() < p:
+        fish = [agent for agent in self.model.grid.get_cell_list_contents([self.pos]) if isinstance(agent, Fish)]
+        catch_rate = 0 if len(fish) == 0 else fish[0].catch_rate
+        if np.random.rand() < catch_rate:
             # fish is caught successfully
             self.total_catch += 1
             self.last_catches.append(1)
