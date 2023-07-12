@@ -41,15 +41,17 @@ class IceFisherAgent(mesa.Agent):
         # increase fishing time
         self.fishing_time += 1
 
-        # catch fish with probability p
-        fish = [agent for agent in self.model.grid.get_cell_list_contents([self.pos]) if isinstance(agent, Fish)]
-        catch_rate = 0 if len(fish) == 0 else fish[0].catch_rate
-        if np.random.rand() < catch_rate:
-            # fish is caught successfully
-            self.total_catch += 1
-            self.last_catches.append(1)
-        else:
-            self.last_catches.append(0)
+        # first time no fishing, only drilling
+        if self.fishing_time > 1:
+            # catch fish with probability p
+            fish = [agent for agent in self.model.grid.get_cell_list_contents([self.pos]) if isinstance(agent, Fish)]
+            catch_rate = 0 if len(fish) == 0 else fish[0].catch_rate
+            if np.random.rand() < catch_rate:
+                # fish is caught successfully
+                self.total_catch += 1
+                self.last_catches.append(1)
+            else:
+                self.last_catches.append(0)
 
     def step(self):
         # if agent is not alone in the cell, move to empty cell
@@ -62,8 +64,9 @@ class IceFisherAgent(mesa.Agent):
 
         # TODO: add function done_check() to check if agent is done
 
-        if (self.state == "fishing" and self.fishing_time > self.max_fishing_time) or (
-                self.pos == self.destination) or (self.state == "moving" and self.destination is None):
+        if ((self.state == "fishing") and (self.fishing_time == self.max_fishing_time)) or \
+                (self.pos == self.destination) or \
+                ((self.state == "moving") and (self.destination is None)):
             # update state
             self.state = self.policy.select_action(model=self.model, agent=self)
             self.destination = self.policy.destination

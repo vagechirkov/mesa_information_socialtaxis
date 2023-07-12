@@ -28,27 +28,28 @@ class RandomSearch(Policy):
                 x = model.random.randrange(model.grid.width)
                 y = model.random.randrange(model.grid.height)
                 self.destination = (x, y)
-            elif agent.pos != agent.destination:
                 return "moving"
             elif agent.pos == agent.destination:
                 # start fishing when destination is reached
+                self.destination = None
                 return "fishing"
 
-        catch_rate = sum(agent.last_catches[:50]) / len(agent.last_catches[:50]) if len(
-            agent.last_catches[:50]) > 0 else 0
+        if agent.state == "fishing":
+            catch_rate = sum(agent.last_catches[:50]) / len(agent.last_catches[:50]) if len(
+                agent.last_catches[:50]) > 0 else 0
 
-        if catch_rate < 1 / 3:
-            x = model.random.randrange(model.grid.width)
-            y = model.random.randrange(model.grid.height)
-            self.destination = (x, y)
-            return "moving"
-        elif catch_rate < 2 / 3:
-            # select neighbor cell
-            neighbors = model.grid.get_neighborhood(agent.pos, moore=True, include_center=False)
-            x, y = model.random.choice(neighbors)
-            self.destination = (x, y)
-            return "moving"
-        else:
-            # continue fishing
-            self.destination = None
-            return "fishing"
+            if catch_rate < 1 / 3:
+                x = model.random.randrange(model.grid.width)
+                y = model.random.randrange(model.grid.height)
+                self.destination = (x, y)
+                return "moving"
+            elif catch_rate < 2 / 3:
+                # select neighbor cell
+                neighbors = model.grid.get_neighborhood(agent.pos, moore=True, include_center=False)
+                x, y = model.random.choice(neighbors)
+                self.destination = (x, y)
+                return "moving"
+            else:
+                # continue fishing
+                self.destination = None
+                return "fishing"
