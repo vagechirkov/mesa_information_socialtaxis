@@ -4,7 +4,7 @@ from agent import Fish
 from model import IceFishingModel
 
 
-def draw_lake(agent):
+def draw_grid(agent):
     """
     Portrayal Method for canvas
     """
@@ -14,7 +14,7 @@ def draw_lake(agent):
     if isinstance(agent, Fish):
         # generate color based on the continuous catch rate light gray
         color = "#%02x%02x%02x" % (
-        int(255 * agent.catch_rate), int(255 * agent.catch_rate), int(255 * agent.catch_rate))
+            int(255 * agent.catch_rate), int(255 * agent.catch_rate), int(255 * agent.catch_rate))
 
         portrayal = {"Color": color, "Shape": "rect", "Filled": "true", "Layer": 0, "w": 0.9, "h": 0.9}
         return portrayal
@@ -31,15 +31,20 @@ def draw_lake(agent):
 grid_size = 30
 grid_canvas_size = 600
 
-canvas_element = mesa.visualization.CanvasGrid(
-    draw_lake, grid_size, grid_size, grid_canvas_size, grid_canvas_size)
+grid = mesa.visualization.CanvasGrid(
+    draw_grid, grid_size, grid_size, grid_canvas_size, grid_canvas_size)
+
+chart = mesa.visualization.ChartModule([{"Label": "Total catch", "Color": "Black"}],
+                                       canvas_height=100, canvas_width=1000,
+                                       data_collector_name='datacollector')
 
 model_params = {
     "height": grid_size,
     "width": grid_size,
     "n_agents": mesa.visualization.Slider("N agents", value=5, min_value=1, max_value=10, step=1),
+    "fish_patch_size": mesa.visualization.Slider("Patch size", value=5, min_value=1, max_value=grid_size // 2, step=1),
 }
 
 server = mesa.visualization.ModularServer(
-    IceFishingModel, [canvas_element], "Ice Fishing", model_params
+    IceFishingModel, [grid], "Ice Fishing", model_params
 )
