@@ -12,8 +12,9 @@ def draw_lake(agent):
         return
 
     if isinstance(agent, Fish):
-        # generate color based on the continuous catch rate
-        color = "#%02x%02x%02x" % (int(255 * agent.catch_rate), 0, 0)
+        # generate color based on the continuous catch rate light gray
+        color = "#%02x%02x%02x" % (
+        int(255 * agent.catch_rate), int(255 * agent.catch_rate), int(255 * agent.catch_rate))
 
         portrayal = {"Color": color, "Shape": "rect", "Filled": "true", "Layer": 0, "w": 0.9, "h": 0.9}
         return portrayal
@@ -25,6 +26,7 @@ def draw_lake(agent):
     else:
         portrayal = {"Shape": "fisher-fishing.svg", "Layer": 1, "State": agent.state, "Catch": agent.total_catch}
     return portrayal
+
 
 grid_size = 30
 grid_canvas_size = 600
