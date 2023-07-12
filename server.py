@@ -9,7 +9,14 @@ def draw_lake(agent):
     """
     if agent is None:
         return
-    portrayal = {"Shape": "circle", "r": 0.5, "Filled": "true", "Layer": 0}
+
+    if agent.state == "fishing":
+        portrayal = {"Shape": "fisher-fishing.svg", "Layer": 0, "State": agent.state}
+    elif agent.state == "moving":
+        portrayal = {"Shape": "fisher-moving.svg", "Layer": 0, "State": agent.state}
+    else:
+        portrayal = {"Shape": "fisher-fishing.svg", "Layer": 0, "State": agent.state}
+
 
     portrayal["Color"] = ["#FF0000"]
     # portrayal["stroke_color"] = "#00FF00"

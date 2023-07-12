@@ -1,3 +1,3 @@
 from server import server
 
-server.launch(open_browser=True, port=8522)
+server.launch(open_browser=False, port=8522)
