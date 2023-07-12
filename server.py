@@ -29,13 +29,15 @@ def draw_lake(agent):
     #     portrayal["stroke_color"] = "#000000"
     return portrayal
 
+grid_size = 30
+grid_canvas_size = 600
 
 canvas_element = mesa.visualization.CanvasGrid(
-    draw_lake, 20, 20, 500, 500)
+    draw_lake, grid_size, grid_size, grid_canvas_size, grid_canvas_size)
 
 model_params = {
-    "height": 20,
-    "width": 20,
+    "height": grid_size,
+    "width": grid_size,
     "n_agents": mesa.visualization.Slider("N agents", value=5, min_value=1, max_value=10, step=1),
 }
 
