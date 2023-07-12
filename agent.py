@@ -60,17 +60,10 @@ class IceFisherAgent(mesa.Agent):
         else:  # fishing
             self.fish()
 
-        if (self.state == "fishing" and self.fishing_time > self.max_fishing_time) or (self.pos == self.destination):
+        if (self.state == "fishing" and self.fishing_time > self.max_fishing_time) or (
+                self.pos == self.destination) or (self.destination is None):
             # update state
-            self.state = self.policy.select_action(model=self.model, agent_position=self.pos,
-                                                   last_catches=self.last_catches)
+            self.state = self.policy.select_action(model=self.model, agent=self)
+            self.destination = self.policy.destination
             # reset catch history
             self.last_catches = []
-
-
-class FishAgent(mesa.Agent):
-    def __init__(self, unique_id: int, model: mesa.Model):
-        super().__init__(unique_id, model)
-
-    def step(self):
-        pass
