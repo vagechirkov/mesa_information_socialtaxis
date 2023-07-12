@@ -1,7 +1,8 @@
 import mesa
+import numpy as np
 from mesa.space import MultiGrid
 
-from agent import IceFisherAgent
+from agent import IceFisherAgent, Fish
 from policy import RandomSearch
 
 
@@ -11,6 +12,7 @@ class IceFishingModel(mesa.Model):
         self.grid = MultiGrid(width, height, torus=False)
         self.schedule = mesa.time.RandomActivation(self)
         self.running = True
+        self.resource = np.zeros((width, height))
 
         # Create agents
         for i in range(self.n_agents):
@@ -23,6 +25,16 @@ class IceFishingModel(mesa.Model):
             x = width // 2
             y = height // 2
             self.grid.place_agent(a, (x, y))
+
+        # add uniform circle of fish in the middle
+        i = 0
+        for x in range(width):
+            for y in range(height):
+                if (x - width // 2) ** 2 + (y - height // 2) ** 2 < (width // 4) ** 2:
+                    f = Fish(self.n_agents + i, self, catch_rate=0.7)
+                    self.schedule.add(f)
+                    self.grid.place_agent(f, (x, y))
+                    i += 1
 
     def step(self):
         self.schedule.step()

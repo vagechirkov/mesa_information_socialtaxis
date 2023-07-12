@@ -1,5 +1,6 @@
 import mesa
 
+from agent import Fish
 from model import IceFishingModel
 
 
@@ -10,23 +11,19 @@ def draw_lake(agent):
     if agent is None:
         return
 
+    if isinstance(agent, Fish):
+        # generate color based on the continuous catch rate
+        color = "#%02x%02x%02x" % (int(255 * agent.catch_rate), 0, 0)
+
+        portrayal = {"Color": color, "Shape": "rect", "Filled": "true", "Layer": 0, "w": 0.9, "h": 0.9}
+        return portrayal
+
     if agent.state == "fishing":
-        portrayal = {"Shape": "fisher-fishing.svg", "Layer": 0, "State": agent.state}
+        portrayal = {"Shape": "fisher-fishing.svg", "Layer": 1, "State": agent.state, "Catch": agent.total_catch}
     elif agent.state == "moving":
-        portrayal = {"Shape": "fisher-moving.svg", "Layer": 0, "State": agent.state}
+        portrayal = {"Shape": "fisher-moving.svg", "Layer": 1, "State": agent.state, "Catch": agent.total_catch}
     else:
-        portrayal = {"Shape": "fisher-fishing.svg", "Layer": 0, "State": agent.state}
-
-
-    portrayal["Color"] = ["#FF0000"]
-    # portrayal["stroke_color"] = "#00FF00"
-
-    # if agent.type == 0:
-    #     portrayal["Color"] = ["#FF0000", "#FF9999"]
-    #     portrayal["stroke_color"] = "#00FF00"
-    # else:
-    #     portrayal["Color"] = ["#0000FF", "#9999FF"]
-    #     portrayal["stroke_color"] = "#000000"
+        portrayal = {"Shape": "fisher-fishing.svg", "Layer": 1, "State": agent.state, "Catch": agent.total_catch}
     return portrayal
 
 grid_size = 30
