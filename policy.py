@@ -50,4 +50,5 @@ class RandomSearch(Policy):
             return "moving"
         else:
             # continue fishing
+            self.destination = None
             return "fishing"

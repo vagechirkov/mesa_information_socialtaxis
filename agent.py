@@ -57,17 +57,19 @@ class IceFisherAgent(mesa.Agent):
             # move agent one cell closer to the selected destination
             if self.destination is not None:
                 self.move(self.destination)
-
         else:  # fishing
             self.fish()
 
+        # TODO: add function done_check() to check if agent is done
+
         if (self.state == "fishing" and self.fishing_time > self.max_fishing_time) or (
-                self.pos == self.destination) or (self.destination is None):
+                self.pos == self.destination) or (self.state == "moving" and self.destination is None):
             # update state
             self.state = self.policy.select_action(model=self.model, agent=self)
             self.destination = self.policy.destination
             # reset catch history
             self.last_catches = []
+            self.fishing_time = 0
 
 
 class Fish(mesa.Agent):
