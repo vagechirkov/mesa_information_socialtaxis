@@ -25,9 +25,8 @@ class RandomSearch(Policy):
         if agent.state == "moving":
             if agent.destination is None:
                 # select random destination
-                x = model.random.randrange(model.grid.width)
-                y = model.random.randrange(model.grid.height)
-                self.destination = (x, y)
+                neighbors = model.grid.get_neighborhood(agent.pos, moore=True, include_center=False, radius=5)
+                self.destination = model.random.choice(neighbors)
                 return "moving"
             elif agent.pos == agent.destination:
                 # start fishing when destination is reached
@@ -39,9 +38,8 @@ class RandomSearch(Policy):
                 agent.last_catches[:50]) > 0 else 0
 
             if catch_rate < 1 / 3:
-                x = model.random.randrange(model.grid.width)
-                y = model.random.randrange(model.grid.height)
-                self.destination = (x, y)
+                neighbors = model.grid.get_neighborhood(agent.pos, moore=True, include_center=False, radius=5)
+                self.destination = model.random.choice(neighbors)
                 return "moving"
             elif catch_rate < 2 / 3:
                 # select neighbor cell
