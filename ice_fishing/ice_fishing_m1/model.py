@@ -7,7 +7,11 @@ from .policy import RandomSearch
 
 
 class IceFishingModel(mesa.Model):
-    def __init__(self, width: int = 100, height: int = 100, n_agents: int = 5, max_fishing_time: int = 10,
+    def __init__(self,
+                 width: int = 100,
+                 height: int = 100,
+                 n_agents: int = 5,
+                 max_fishing_time: int = 10,
                  fish_patch_size: int = 3):
         self.n_agents = n_agents
         self.fish_patch_size = fish_patch_size

@@ -53,26 +53,58 @@ class IceFisherAgent(mesa.Agent):
             else:
                 self.last_catches.append(0)
 
+    def _check_fishing_done(self) -> bool:
+        """
+        Check if fishing is done
+        """
+        fishing_state = self.state == "fishing"
+        fishing_done = self.fishing_time == self.max_fishing_time
+        return fishing_state and fishing_done
+
+    def _check_moving_done(self) -> bool:
+        """
+        Check if moving is done
+        """
+        moving_state = self.state == "moving"
+        destination_reached = self.pos == self.destination
+        return moving_state and destination_reached
+
+    def _check_destination_none(self) -> bool:
+        """
+        Check if destination is None
+        """
+        moving_state = self.state == "moving"
+        destination_none = self.destination is None
+        return moving_state and destination_none
+
+    def _check_current_action_done(self) -> bool:
+        """
+        Check if the current action is done
+        """
+        return self._check_fishing_done() or self._check_moving_done() or self._check_destination_none()
+
+    def select_next_action(self):
+        # update state
+        self.state = self.policy.select_action(model=self.model, agent=self)
+        self.destination = self.policy.destination
+        # reset catch history
+        self.last_catches = []
+        self.fishing_time = 0
+
     def step(self):
+        # select the next action if the current is done
+        if self._check_current_action_done():
+            self.select_next_action()
+
         # if agent is not alone in the cell, move to empty cell
         if self.state == "moving":
             # move agent one cell closer to the selected destination
             if self.destination is not None:
                 self.move(self.destination)
-        else:  # fishing
+        elif self.state == "fishing":
             self.fish()
-
-        # TODO: add function done_check() to check if agent is done
-
-        if ((self.state == "fishing") and (self.fishing_time == self.max_fishing_time)) or \
-                (self.pos == self.destination) or \
-                ((self.state == "moving") and (self.destination is None)):
-            # update state
-            self.state = self.policy.select_action(model=self.model, agent=self)
-            self.destination = self.policy.destination
-            # reset catch history
-            self.last_catches = []
-            self.fishing_time = 0
+        else:
+            raise ValueError("Unknown state")
 
 
 class Fish(mesa.Agent):
