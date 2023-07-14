@@ -1,7 +1,7 @@
 import mesa
 
-from agent import Fish
-from model import IceFishingModel
+from .agent import Fish
+from .model import IceFishingModel
 
 
 def draw_grid(agent):
@@ -48,5 +48,5 @@ model_params = {
 }
 
 server = mesa.visualization.ModularServer(
-    IceFishingModel, [grid], "Ice Fishing", model_params
+    IceFishingModel, [grid, grid], "Ice Fishing", model_params
 )

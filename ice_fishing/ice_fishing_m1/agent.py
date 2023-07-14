@@ -3,7 +3,7 @@ from typing import Literal
 import mesa
 import numpy as np
 
-from policy import Policy
+from .policy import Policy
 
 
 class IceFisherAgent(mesa.Agent):
