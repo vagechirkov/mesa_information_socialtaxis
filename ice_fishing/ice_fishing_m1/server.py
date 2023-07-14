@@ -1,8 +1,12 @@
 import mesa
+import matplotlib as mpl
 
 from .agent_fish import Fish
 from .model import IceFishingModel
 
+cmap = mpl.colormaps['Reds']
+norm = mpl.colors.Normalize(vmin=0, vmax=2)
+m = mpl.cm.ScalarMappable(norm=norm, cmap=cmap)
 
 def draw_grid(agent):
     """
@@ -12,9 +16,7 @@ def draw_grid(agent):
         return
 
     if isinstance(agent, Fish):
-        # generate color based on the continuous catch rate light gray
-        color = "#%02x%02x%02x" % (
-            int(255 * agent.catch_rate), int(255 * agent.catch_rate), int(255 * agent.catch_rate))
+        color = mpl.colors.to_hex(m.to_rgba(agent.p_catch))
 
         portrayal = {"Color": color, "Shape": "rect", "Filled": "true", "Layer": 0, "w": 0.9, "h": 0.9}
         return portrayal

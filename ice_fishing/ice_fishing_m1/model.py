@@ -4,6 +4,7 @@ from mesa.space import MultiGrid
 
 from .agent_fisher import RandomIceFisher
 from .agent_fish import Fish
+from .utils.utils import gaussian_resource_map
 
 
 class IceFishingModel(mesa.Model):
@@ -13,6 +14,7 @@ class IceFishingModel(mesa.Model):
                  n_agents: int = 5,
                  max_fishing_time: int = 10,
                  fish_patch_size: int = 3):
+        self.current_id = 0
         self.n_agents = n_agents
         self.fish_patch_size = fish_patch_size
         self.grid = MultiGrid(width, height, torus=False)
@@ -25,8 +27,8 @@ class IceFishingModel(mesa.Model):
         self.running = True
 
         # Create agents
-        for i in range(self.n_agents):
-            a = RandomIceFisher(i, self, "initial", max_fishing_time=max_fishing_time)
+        for _ in range(self.n_agents):
+            a = RandomIceFisher(self.next_id(), self, "initial", max_fishing_time=max_fishing_time)
             self.schedule.add(a)
 
             # Add the agent to a random grid cell
@@ -35,16 +37,21 @@ class IceFishingModel(mesa.Model):
             x = width // 2
             y = height // 2
             self.grid.place_agent(a, (x, y))
+        self._initialise_fish()
+        self._update_fish_catch(p_catch=gaussian_resource_map(width, height, (0, 0), (0.4, 0.4)))
 
+    def _initialise_fish(self):
         # add uniform circle of fish in the middle
-        i = 0
-        for x in range(width):
-            for y in range(height):
-                if (x - width // 2) ** 2 + (y - height // 2) ** 2 < self.fish_patch_size ** 2:
-                    f = Fish(self.n_agents + i, self, catch_rate=0.7)
-                    self.schedule.add(f)
-                    self.grid.place_agent(f, (x, y))
-                    i += 1
+        for x in range(self.grid.width):
+            for y in range(self.grid.height):
+                f = Fish(self.next_id(), self, p_catch=0)
+                self.schedule.add(f)
+                self.grid.place_agent(f, (x, y))
+
+    def _update_fish_catch(self, p_catch: np.ndarray):
+        for agent in self.schedule.agents:
+            if isinstance(agent, Fish):
+                agent.p_catch = p_catch[agent.pos[0], agent.pos[1]]
 
     def step(self):
         self.schedule.step()
