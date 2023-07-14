@@ -13,7 +13,7 @@ def catch_rate(last_catches: list, window_size: int = 50) -> float:
 
 
 def gaussian_resource_map(width: int, height: int, mean: tuple[float, float], cov_val: tuple[float, float],
-                          random_seed=42, max_value=0.8) -> np.ndarray:
+                          random_seed=42, max_value=1) -> np.ndarray:
     """
     Create a gaussian resource map
     """

@@ -8,6 +8,7 @@ cmap = mpl.colormaps['Reds']
 norm = mpl.colors.Normalize(vmin=0, vmax=2)
 m = mpl.cm.ScalarMappable(norm=norm, cmap=cmap)
 
+
 def draw_grid(agent):
     """
     Portrayal Method for canvas
@@ -45,6 +46,7 @@ chart = mesa.visualization.ChartModule([{"Label": "Total catch", "Color": "Black
 model_params = {
     "height": grid_size,
     "width": grid_size,
+    "server": True,
     "n_agents": mesa.visualization.Slider("N agents", value=5, min_value=1, max_value=10, step=1),
     "fish_patch_size": mesa.visualization.Slider("Patch size", value=5, min_value=1, max_value=grid_size // 2, step=1),
 }

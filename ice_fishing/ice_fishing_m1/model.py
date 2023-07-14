@@ -13,7 +13,8 @@ class IceFishingModel(mesa.Model):
                  height: int = 100,
                  n_agents: int = 5,
                  max_fishing_time: int = 10,
-                 fish_patch_size: int = 3):
+                 fish_patch_size: int = 3,
+                 server: bool = False):
         self.current_id = 0
         self.n_agents = n_agents
         self.fish_patch_size = fish_patch_size
@@ -37,8 +38,13 @@ class IceFishingModel(mesa.Model):
             x = width // 2
             y = height // 2
             self.grid.place_agent(a, (x, y))
-        self._initialise_fish()
-        self._update_fish_catch(p_catch=gaussian_resource_map(width, height, (0, 0), (0.4, 0.4)))
+
+        self.resource_map = gaussian_resource_map(width, height, (0, 0), (0.4, 0.4))
+
+        if server:
+            # this is needed to visualise the resource map in the server
+            self._initialise_fish()
+            self._update_fish_catch(p_catch=self.resource_map)
 
     def _initialise_fish(self):
         # add uniform circle of fish in the middle

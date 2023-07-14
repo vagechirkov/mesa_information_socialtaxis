@@ -3,7 +3,6 @@ from typing import Literal
 import mesa
 import numpy as np
 
-from .agent_fish import Fish
 from .utils.utils import catch_rate
 
 
@@ -43,9 +42,7 @@ class RandomIceFisher(mesa.Agent):
         """
         # first time no fishing, only drilling
         if self.fishing_time > 0:
-            # catch fish with probability p
-            fish = [agent for agent in self.model.grid.get_cell_list_contents([self.pos]) if isinstance(agent, Fish)]
-            if np.random.rand() < 0 if len(fish) == 0 else fish[0].catch_rate:
+            if np.random.rand() < self.model.resource_map[self.pos]:
                 # fish is caught successfully
                 self.total_catch += 1
                 self.last_catches.append(1)
