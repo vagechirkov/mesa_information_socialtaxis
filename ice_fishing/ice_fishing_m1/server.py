@@ -19,7 +19,7 @@ def draw_grid(agent):
         portrayal = {"Color": color, "Shape": "rect", "Filled": "true", "Layer": 0, "w": 0.9, "h": 0.9}
         return portrayal
 
-    if agent.state == "fishing" and agent.fishing_time == 0:
+    if agent.state == "fishing" and agent.fishing_time == 1:
         portrayal = {"Shape": "jackhammer.svg", "Layer": 1, "State": agent.state, "Catch": agent.total_catch}
     elif agent.state == "fishing":
         portrayal = {"Shape": "fisher-fishing.svg", "Layer": 1, "State": agent.state, "Catch": agent.total_catch}

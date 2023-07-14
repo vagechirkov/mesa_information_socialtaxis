@@ -41,11 +41,8 @@ class RandomIceFisher(mesa.Agent):
         """
         Fish in the current cell
         """
-        # increase fishing time
-        self.fishing_time += 1
-
         # first time no fishing, only drilling
-        if self.fishing_time > 1:
+        if self.fishing_time > 0:
             # catch fish with probability p
             fish = [agent for agent in self.model.grid.get_cell_list_contents([self.pos]) if isinstance(agent, Fish)]
             catch_rate = 0 if len(fish) == 0 else fish[0].catch_rate
@@ -55,6 +52,9 @@ class RandomIceFisher(mesa.Agent):
                 self.last_catches.append(1)
             else:
                 self.last_catches.append(0)
+
+        # increase fishing time
+        self.fishing_time += 1
 
     def _check_fishing_done(self) -> bool:
         """
