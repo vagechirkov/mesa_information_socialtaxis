@@ -48,5 +48,5 @@ model_params = {
 }
 
 server = mesa.visualization.ModularServer(
-    IceFishingModel, [grid, grid], "Ice Fishing", model_params
+    IceFishingModel, [grid], "Ice Fishing", model_params
 )
