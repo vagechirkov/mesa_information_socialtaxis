@@ -35,11 +35,11 @@ class IceFishingModel(mesa.Model):
             # Add the agent to a random grid cell
             # x = self.random.randrange(self.grid.width)
             # y = self.random.randrange(self.grid.height)
-            x = width // 2
-            y = height // 2
+            x = width // 4
+            y = height // 4
             self.grid.place_agent(a, (x, y))
 
-        self.resource_map = gaussian_resource_map(width, height, (0, 0), (0.4, 0.4))
+        self.resource_map = gaussian_resource_map(width, height, (2, 2), (0.1, 0.1))
 
         if server:
             # this is needed to visualise the resource map in the server
