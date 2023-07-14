@@ -1,6 +1,6 @@
 import mesa
 
-from .agent import Fish
+from .agent_fish import Fish
 from .model import IceFishingModel
 
 

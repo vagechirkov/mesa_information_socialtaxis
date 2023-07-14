@@ -3,6 +3,7 @@ from typing import Literal
 import mesa
 import numpy as np
 
+from .agent_fish import Fish
 from .policy import Policy
 
 
@@ -98,9 +99,7 @@ class IceFisherAgent(mesa.Agent):
 
         # if agent is not alone in the cell, move to empty cell
         if self.state == "moving":
-            # move agent one cell closer to the selected destination
-            if self.destination is not None:
-                self.move(self.destination)
+            self.move(self.destination)
         elif self.state == "fishing":
             self.fish()
         else:

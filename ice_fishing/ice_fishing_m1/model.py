@@ -2,9 +2,9 @@ import mesa
 import numpy as np
 from mesa.space import MultiGrid
 
-from agent_fisher import IceFisherAgent
-from agent_fish import Fish
-from policy import RandomSearch
+from .agent_fisher import IceFisherAgent
+from .agent_fish import Fish
+from .policy import RandomSearch
 
 
 class IceFishingModel(mesa.Model):
