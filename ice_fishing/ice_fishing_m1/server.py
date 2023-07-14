@@ -4,8 +4,8 @@ import matplotlib as mpl
 from .agent_fish import Fish
 from .model import IceFishingModel
 
-cmap = mpl.colormaps['Reds']
-norm = mpl.colors.Normalize(vmin=0, vmax=2)
+cmap = mpl.colormaps['Blues']
+norm = mpl.colors.Normalize(vmin=0.05, vmax=1)
 m = mpl.cm.ScalarMappable(norm=norm, cmap=cmap)
 
 
@@ -48,7 +48,8 @@ model_params = {
     "width": grid_size,
     "server": True,
     "n_agents": mesa.visualization.Slider("N agents", value=5, min_value=1, max_value=10, step=1),
-    "fish_patch_size": mesa.visualization.Slider("Patch size", value=5, min_value=1, max_value=grid_size // 2, step=1),
+    "fish_patch_std": mesa.visualization.Slider("Patch std", value=0.4, min_value=0.01, max_value=1, step=0.1),
+    "fish_patch_n_samples": mesa.visualization.NumberInput("Patch noize", value=10 ** 5),
 }
 
 server = mesa.visualization.ModularServer(

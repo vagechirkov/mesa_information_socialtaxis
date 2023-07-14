@@ -1,6 +1,7 @@
 from scipy.stats import multivariate_normal
 
 import numpy as np
+from sklearn.datasets import make_blobs
 
 
 def catch_rate(last_catches: list, window_size: int = 50) -> float:
@@ -43,3 +44,23 @@ def gaussian_resource_map(width: int, height: int, mean: tuple[float, float], co
     normalized_pdf = (pdf / np.max(pdf)) * max_value
     return normalized_pdf
 
+
+def generate_resource_map(width: int, height: int,
+                          # max_value: float = 0.8,
+                          # min_value: float = 0,
+                          cluster_std: float = 0.4,
+                          n_samples: int = 100_000,
+                          centers: list[list[float]] = ((1, 1), (-1, 1), (1, -1)),
+                          random_seed: int = 42):
+    X, _ = make_blobs(n_samples=n_samples, centers=centers, cluster_std=cluster_std, random_state=random_seed)
+    x_edges = np.linspace(-2, 2, width + 1)
+    y_edges = np.linspace(-2, 2, height + 1)
+    density, _, _ = np.histogram2d(X[:, 0], X[:, 1], bins=(x_edges, y_edges), density=True)
+
+    # # rescale to [0, max_value]
+    # density = (density / np.max(density)) * max_value
+    #
+    # # cut off values below min_value
+    # density[density < min_value] = 0
+
+    return density

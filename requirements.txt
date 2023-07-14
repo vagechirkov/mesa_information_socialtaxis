@@ -1,3 +1,5 @@
-mesa
-scipy
 matplotlib
+mesa
+numpy
+scikit-learn
+scipy

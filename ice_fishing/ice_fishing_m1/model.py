@@ -4,7 +4,7 @@ from mesa.space import MultiGrid
 
 from .agent_fisher import RandomIceFisher
 from .agent_fish import Fish
-from .utils.utils import gaussian_resource_map
+from .utils.utils import generate_resource_map
 
 
 class IceFishingModel(mesa.Model):
@@ -13,11 +13,11 @@ class IceFishingModel(mesa.Model):
                  height: int = 100,
                  n_agents: int = 5,
                  max_fishing_time: int = 10,
-                 fish_patch_size: int = 3,
+                 fish_patch_std: int = 0.4,
+                 fish_patch_n_samples: int = 100_000,
                  server: bool = False):
         self.current_id = 0
         self.n_agents = n_agents
-        self.fish_patch_size = fish_patch_size
         self.grid = MultiGrid(width, height, torus=False)
         self.datacollector = mesa.datacollection.DataCollector(
             model_reporters={
@@ -39,7 +39,8 @@ class IceFishingModel(mesa.Model):
             y = height // 4
             self.grid.place_agent(a, (x, y))
 
-        self.resource_map = gaussian_resource_map(width, height, (2, 2), (0.1, 0.1))
+        self.resource_map = generate_resource_map(width, height, cluster_std=fish_patch_std,
+                                                  n_samples=fish_patch_n_samples)
 
         if server:
             # this is needed to visualise the resource map in the server
