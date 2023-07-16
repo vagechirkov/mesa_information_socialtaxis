@@ -21,8 +21,11 @@ class IceFishingModel(mesa.Model):
         self.grid = MultiGrid(width, height, torus=False)
         self.datacollector = mesa.datacollection.DataCollector(
             model_reporters={
-                "Total catch": lambda m: sum(
-                    [a.total_catch for a in m.schedule.agents if isinstance(a, RandomIceFisher)])},
+                "Mean catch": lambda m: np.mean(
+                    [agent.total_catch for agent in m.schedule.agents if isinstance(agent, RandomIceFisher)]),
+                "Std catch": lambda m: np.std(
+                    [agent.total_catch for agent in m.schedule.agents if isinstance(agent, RandomIceFisher)]),
+            },
         )
         self.schedule = mesa.time.RandomActivation(self)
         self.running = True

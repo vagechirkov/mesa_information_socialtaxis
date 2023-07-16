@@ -5,7 +5,7 @@ from .agent_fish import Fish
 from .model import IceFishingModel
 
 cmap = mpl.colormaps['Blues']
-norm = mpl.colors.Normalize(vmin=0.05, vmax=1)
+norm = mpl.colors.Normalize(vmin=0, vmax=1)
 m = mpl.cm.ScalarMappable(norm=norm, cmap=cmap)
 
 
