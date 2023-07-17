@@ -33,7 +33,7 @@ def draw_grid(agent):
     return portrayal
 
 
-grid_size = 30
+grid_size = 20
 grid_canvas_size = 600
 
 grid = mesa.visualization.CanvasGrid(
@@ -47,6 +47,7 @@ model_params = {
     "height": grid_size,
     "width": grid_size,
     "server": True,
+    "agent_model": mesa.visualization.Choice("Agent model", value="imitator", choices=["random", "imitator"]),
     "n_agents": mesa.visualization.Slider("N agents", value=5, min_value=1, max_value=10, step=1),
     "fish_patch_std": mesa.visualization.Slider("Patch std", value=0.4, min_value=0.01, max_value=1, step=0.1),
     "fish_patch_n_samples": mesa.visualization.NumberInput("Patch noize", value=10 ** 5),

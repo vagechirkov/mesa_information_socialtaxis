@@ -90,7 +90,12 @@ class RandomIceFisher(mesa.Agent):
         self.last_catches = []
         self.fishing_time = 0
 
-    def get_random_destination(self, radius=5) -> tuple[int, int]:
+    def get_far_destination(self, radius=5) -> tuple[int, int]:
+        # select random destination
+        neighbors = self.model.grid.get_neighborhood(self.pos, moore=True, include_center=False, radius=radius)
+        return self.model.random.choice(neighbors)
+
+    def get_close_destination(self, radius=1) -> tuple[int, int]:
         # select random destination
         neighbors = self.model.grid.get_neighborhood(self.pos, moore=True, include_center=False, radius=radius)
         return self.model.random.choice(neighbors)
@@ -101,17 +106,17 @@ class RandomIceFisher(mesa.Agent):
 
         if self.state == "initial":
             self.state = "moving"
-            self.destination = self.get_random_destination(radius=5)
+            self.destination = self.get_far_destination()
         elif self.state == "moving":
             self.state = "fishing"
         elif self.state == "fishing":
             rate = catch_rate(self.last_catches, window_size=50)
             if rate < 1 / 3:
                 self.state = "moving"
-                self.destination = self.get_random_destination(radius=5)
+                self.destination = self.get_far_destination()
             elif rate < 2 / 3:
                 self.state = "moving"
-                self.destination = self.get_random_destination(radius=1)
+                self.destination = self.get_close_destination()
             else:
                 self.state = "fishing"
         else:
@@ -130,3 +135,27 @@ class RandomIceFisher(mesa.Agent):
             self.fish()
         else:
             raise ValueError("Unknown state")
+
+
+class ImitatorIceFisher(RandomIceFisher):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def get_far_destination(self, radius=5) -> tuple[int, int]:
+        # select random destination
+        neighbors = self.model.grid.get_neighbors(self.pos, moore=True, include_center=False, radius=radius)
+
+        # select agents with non-zero catch history
+        neighbors_with_catches = [n for n in neighbors if hasattr(n, "last_catches") and sum(n.last_catches) > 0]
+
+        # return random destination if no neighbors with non-zero catch history
+        if len(neighbors_with_catches) == 0:
+            neighbors = self.model.grid.get_neighborhood(self.pos, moore=True, include_center=False, radius=radius)
+            return self.model.random.choice(neighbors)
+
+        # select the most successful agent
+        neighbors_with_catches = sorted(neighbors_with_catches, key=lambda x: sum(x.last_catches), reverse=True)
+
+        # return the position of the most successful agent
+        return neighbors_with_catches[0].pos
