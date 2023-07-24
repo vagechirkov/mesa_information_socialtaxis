@@ -2,7 +2,7 @@ import mesa
 import numpy as np
 from mesa.space import MultiGrid
 
-from .agent_fisher import RandomIceFisher, ImitatorIceFisher
+from .agent_fisher import BaseIceFisher, ImitatorIceFisher
 from .agent_fish import Fish
 from .utils.utils import generate_resource_map, mean_catch_ratio
 
@@ -26,7 +26,7 @@ class IceFishingModel(mesa.Model):
         self.datacollector = mesa.datacollection.DataCollector(
             model_reporters={
                 "Mean catch ratio": lambda m: mean_catch_ratio(
-                    [agent.total_catch for agent in m.schedule.agents if isinstance(agent, RandomIceFisher)],
+                    [agent.total_catch for agent in m.schedule.agents if isinstance(agent, BaseIceFisher)],
                     fish_patch_n_samples),
             },
         )
@@ -36,7 +36,7 @@ class IceFishingModel(mesa.Model):
         # Create agents
         for _ in range(self.n_agents):
             if agent_model == "random":
-                a = RandomIceFisher(self.next_id(), self, "initial", max_fishing_time=max_fishing_time)
+                a = BaseIceFisher(self.next_id(), self, "initial", max_fishing_time=max_fishing_time)
             elif agent_model == "imitator":
                 a = ImitatorIceFisher(self.next_id(), self, "initial", max_fishing_time=max_fishing_time)
             else:

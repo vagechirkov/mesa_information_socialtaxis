@@ -15,11 +15,19 @@ class Belief:
             # make a circle around prior center location
             self.prior_info = draw_circe_around_point(self.prior_info, x, y, radius)
 
+        # make sure the prior info is proper probability distribution
+        self.prior_info = self.prior_info / self.prior_info.sum()
+
     def update_social_info(self, other_locs: list[tuple[int, int]], radius: int = 3) -> None:
         self.social_info = np.zeros_like(self.social_info)
         for x, y in other_locs:
             # make a circle around the other agent
-            self.social_info = draw_circe_around_point(self.social_info, x, y)
+            self.social_info = draw_circe_around_point(self.social_info, x, y, radius)
+
+        # make sure the social info is proper probability distribution
+        self.social_info = self.social_info / self.social_info.sum()
 
     def update_catch_rate(self, loc: tuple[int, int], catch_rate: float) -> None:
         self.catch_rate[loc] = catch_rate
+        # make sure the catch rate is proper probability distribution
+        self.catch_rate = self.catch_rate / self.catch_rate.sum()

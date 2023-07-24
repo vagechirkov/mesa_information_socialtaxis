@@ -3,22 +3,26 @@ from typing import Literal
 import mesa
 import numpy as np
 
+from .belief import Belief
 from .utils.utils import catch_rate
 
 
-class RandomIceFisher(mesa.Agent):
+class BaseIceFisher(mesa.Agent):
     def __init__(self,
                  unique_id: int,
                  model: mesa.Model,
                  state: Literal["moving", "fishing", "initial"] = "initial",
                  max_fishing_time: int = 10):
         super().__init__(unique_id, model)
+        self.belief = Belief(model.grid.width, model.grid.height)
         self.state = state
         self.fishing_time = 0
         self.max_fishing_time = max_fishing_time
         self.total_catch = 0
         self.last_catches = []
         self.destination = None
+
+        self.update_prior_belief([(10, 10)])
 
     def move(self, destination: tuple[int, int]):
         """
@@ -108,6 +112,7 @@ class RandomIceFisher(mesa.Agent):
         if not self._check_current_action_done():
             return
 
+
         if self.state == "initial":
             self.state = "moving"
             self.destination = self.get_far_destination()
@@ -115,6 +120,8 @@ class RandomIceFisher(mesa.Agent):
             self.state = "fishing"
         elif self.state == "fishing":
             rate = catch_rate(self.last_catches, window_size=50)
+            self.update_catch_rate_belief(rate)
+            self.update_social_belief()
             if rate < 1 / 3:
                 self.state = "moving"
                 self.destination = self.get_far_destination()
@@ -140,8 +147,22 @@ class RandomIceFisher(mesa.Agent):
         else:
             raise ValueError("Unknown state")
 
+    def update_social_belief(self):
+        # update social info
+        neighbors = self.model.grid.get_neighbors(self.pos, moore=True, include_center=False, radius=30)
+        other_locs = [n.pos for n in neighbors if isinstance(n, BaseIceFisher)]
+        self.belief.update_social_info(other_locs)
 
-class ImitatorIceFisher(RandomIceFisher):
+    def update_prior_belief(self, priors: list[tuple[int, int]]) -> None:
+        # update prior info
+        self.belief.update_prior_info(priors)
+
+    def update_catch_rate_belief(self, rate: float) -> None:
+        # update catch rate
+        self.belief.update_catch_rate(self.pos, rate)
+
+
+class ImitatorIceFisher(BaseIceFisher):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
