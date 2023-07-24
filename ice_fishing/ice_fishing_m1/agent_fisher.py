@@ -2,6 +2,7 @@ from typing import Literal
 
 import mesa
 import numpy as np
+import scipy
 
 from .belief import Belief
 from .utils.utils import catch_rate
@@ -22,7 +23,7 @@ class BaseIceFisher(mesa.Agent):
         self.last_catches = []
         self.destination = None
 
-        self.update_prior_belief([(10, 10)])
+        self.update_prior_belief([(model.grid.width // 2, model.grid.height // 2)])
 
     def move(self, destination: tuple[int, int]):
         """
@@ -108,10 +109,19 @@ class BaseIceFisher(mesa.Agent):
         neighbors = self.model.grid.get_neighborhood(self.pos, moore=True, include_center=False, radius=radius)
         return self.model.random.choice(neighbors)
 
+    def choose_action(self, rate: float = 0):
+        if rate < 1 / 3:
+            self.state = "moving"
+            self.destination = self.get_far_destination()
+        elif rate < 2 / 3:
+            self.state = "moving"
+            self.destination = self.get_close_destination()
+        else:
+            self.state = "fishing"
+
     def select_next_action(self):
         if not self._check_current_action_done():
             return
-
 
         if self.state == "initial":
             self.state = "moving"
@@ -122,14 +132,7 @@ class BaseIceFisher(mesa.Agent):
             rate = catch_rate(self.last_catches, window_size=50)
             self.update_catch_rate_belief(rate)
             self.update_social_belief()
-            if rate < 1 / 3:
-                self.state = "moving"
-                self.destination = self.get_far_destination()
-            elif rate < 2 / 3:
-                self.state = "moving"
-                self.destination = self.get_close_destination()
-            else:
-                self.state = "fishing"
+            self.choose_action(rate)
         else:
             raise ValueError("Unknown state")
 
@@ -184,3 +187,20 @@ class ImitatorIceFisher(BaseIceFisher):
 
         # return the position of the most successful agent
         return neighbors_with_catches[0].pos
+
+
+class BeliefFisher(BaseIceFisher):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def choose_action(self, rate: float = 0, temperature: float = 0.8):
+        self.belief.softmax_weighted_belief(temperature=temperature)
+
+        # select the most promising cell
+        x, y = np.unravel_index(self.belief.softmax_belief.argmax(), self.belief.softmax_belief.shape)
+
+        if (x, y) == self.pos:
+            self.state = "fishing"
+        else:
+            self.state = "moving"
+            self.destination = (x, y)

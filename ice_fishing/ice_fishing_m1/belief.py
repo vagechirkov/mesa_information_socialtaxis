@@ -30,14 +30,13 @@ class Belief:
         self.social_info = self.social_info / self.social_info.sum()
 
     def update_catch_rate(self, loc: tuple[int, int], catch_rate: float) -> None:
-        self.catch_rate[loc] = catch_rate
+        add_catch_rate = draw_circe_around_point(np.zeros_like(self.catch_rate), loc[0], loc[1], radius=3)
+        self.catch_rate += add_catch_rate * catch_rate
         # make sure the catch rate is proper probability distribution
-        self.catch_rate = self.catch_rate / self.catch_rate.sum()
+        self.catch_rate = self.catch_rate / self.catch_rate.sum() if self.catch_rate.sum() != 0 else self.catch_rate
 
-    def softmax_weighted_belief(self, weights: np.ndarray = (1/3, 1/3, 1/3), temperature: float = 0.1) -> None:
+    def softmax_weighted_belief(self, weights: np.ndarray = (1 / 3, 1 / 3, 1 / 3), temperature: float = 0.1) -> None:
         weighted_belief = weights[0] * self.prior_info + weights[1] * self.social_info + weights[2] * self.catch_rate
 
         # softmax weighted belief with temperature
-        self.softmax_belief = scipy.special.softmax(weighted_belief / temperature)
-
-
+        self.softmax_belief = weighted_belief  # scipy.special.softmax(weighted_belief / temperature)

@@ -2,7 +2,7 @@ import mesa
 import numpy as np
 from mesa.space import MultiGrid
 
-from .agent_fisher import BaseIceFisher, ImitatorIceFisher
+from .agent_fisher import BaseIceFisher, ImitatorIceFisher, BeliefFisher
 from .agent_fish import Fish, BeliefHolderAgent
 from .utils.utils import generate_resource_map, mean_catch_ratio
 
@@ -39,6 +39,8 @@ class IceFishingModel(mesa.Model):
                 a = BaseIceFisher(self.next_id(), self, "initial", max_fishing_time=max_fishing_time)
             elif agent_model == "imitator":
                 a = ImitatorIceFisher(self.next_id(), self, "initial", max_fishing_time=max_fishing_time)
+            elif agent_model == "weighted_information":
+                a = BeliefFisher(self.next_id(), self, "initial", max_fishing_time=max_fishing_time)
             else:
                 raise ValueError(f"Unknown agent model: {agent_model}")
             self.schedule.add(a)
@@ -86,6 +88,7 @@ class IceFishingModel(mesa.Model):
                 agent.prior = agent_0.belief.prior_info[agent.pos]
                 agent.social = agent_0.belief.social_info[agent.pos]
                 agent.catch_rate = agent_0.belief.catch_rate[agent.pos]
+                agent.softmax_belief = agent_0.belief.softmax_belief[agent.pos]
 
     def step(self):
         self.schedule.step()
