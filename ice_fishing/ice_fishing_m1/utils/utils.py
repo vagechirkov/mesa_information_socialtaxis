@@ -56,6 +56,13 @@ def generate_resource_map(width: int, height: int,
     y_edges = np.linspace(-2, 2, height + 1)
     fish_count, _, _ = np.histogram2d(X[:, 0], X[:, 1], bins=(x_edges, y_edges), density=False)
 
+    # add missing samples to the random places
+    n_missing_samples = n_samples - np.sum(fish_count)
+    for _ in range(n_missing_samples.astype(int)):
+        x = np.random.randint(0, width)
+        y = np.random.randint(0, height)
+        fish_count[x, y] += 1
+
     # rescale to [0, max_value]
     # fish_map = (fish_count / np.max(fish_count)) * max_value
     fish_map = fish_count
