@@ -15,14 +15,17 @@ class IceFishingModel(mesa.Model):
                  max_fishing_time: int = 10,
                  fish_patch_std: int = 0.4,
                  fish_patch_n_samples: int = 100_000,
+                 fish_catch_threshold: int = 100,
                  agent_model: str = "random",
                  server: bool = False):
         self.current_id = 0
+        self.server = server
         self.n_agents = n_agents
+        self.fish_catch_threshold = fish_catch_threshold
         self.grid = MultiGrid(width, height, torus=False)
         self.datacollector = mesa.datacollection.DataCollector(
             model_reporters={
-                "Mean catch ration": lambda m: mean_catch_ratio(
+                "Mean catch ratio": lambda m: mean_catch_ratio(
                     [agent.total_catch for agent in m.schedule.agents if isinstance(agent, RandomIceFisher)],
                     fish_patch_n_samples),
             },
@@ -43,14 +46,14 @@ class IceFishingModel(mesa.Model):
             # Add the agent to a random grid cell
             # x = self.random.randrange(self.grid.width)
             # y = self.random.randrange(self.grid.height)
-            x = width // 4
-            y = height // 4
+            x = width // 2
+            y = height // 2
             self.grid.place_agent(a, (x, y))
 
         self.resource_map = generate_resource_map(width, height, cluster_std=fish_patch_std,
                                                   n_samples=fish_patch_n_samples)
 
-        if server:
+        if self.server:
             # this is needed to visualise the resource map in the server
             self._initialise_fish()
             self._update_fish_catch(p_catch=self.resource_map)
@@ -66,13 +69,17 @@ class IceFishingModel(mesa.Model):
     def _update_fish_catch(self, p_catch: np.ndarray):
         for agent in self.schedule.agents:
             if isinstance(agent, Fish):
-                agent.p_catch = p_catch[agent.pos[0], agent.pos[1]]
+                agent.p_catch = p_catch[agent.pos]
 
     def step(self):
         self.schedule.step()
 
         # collect data
         self.datacollector.collect(self)
+
+        if self.server:
+            # this is needed to visualise the resource map in the server
+            self._update_fish_catch(p_catch=self.resource_map)
 
     def run_model(self, step_count: int = 100) -> None:
         for _ in range(step_count):

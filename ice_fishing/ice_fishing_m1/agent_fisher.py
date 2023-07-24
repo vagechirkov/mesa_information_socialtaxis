@@ -42,10 +42,14 @@ class RandomIceFisher(mesa.Agent):
         """
         # first time no fishing, only drilling
         if self.fishing_time > 0:
-            if np.random.rand() < self.model.resource_map[self.pos]:
+            n_fish = self.model.resource_map[self.pos]
+            p_catch = min(n_fish / self.model.fish_catch_threshold, 0.8)
+            if np.random.rand() < p_catch:
                 # fish is caught successfully
                 self.total_catch += 1
                 self.last_catches.append(1)
+                # depletion of the resource
+                self.model.resource_map[self.pos] -= 1
             else:
                 self.last_catches.append(0)
 

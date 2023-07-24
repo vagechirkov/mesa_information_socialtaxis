@@ -49,7 +49,7 @@ def generate_resource_map(width: int, height: int,
                           max_value: float = 0.8,
                           cluster_std: float = 0.4,
                           n_samples: int = 100_000,
-                          centers: list[list[float]] = ((1, 1), (-1, 1), (1, -1)),
+                          centers: list[list[float]] = ((1, 1), (-1, 1), (1, -1), (-1, -1)),
                           random_seed: int = 42):
     X, _ = make_blobs(n_samples=n_samples, centers=centers, cluster_std=cluster_std, random_state=random_seed)
     x_edges = np.linspace(-2, 2, width + 1)
@@ -57,7 +57,8 @@ def generate_resource_map(width: int, height: int,
     fish_count, _, _ = np.histogram2d(X[:, 0], X[:, 1], bins=(x_edges, y_edges), density=False)
 
     # rescale to [0, max_value]
-    fish_map = (fish_count / np.max(fish_count)) * max_value
+    # fish_map = (fish_count / np.max(fish_count)) * max_value
+    fish_map = fish_count
 
     # # cut off values below min_value
     # density[density < min_value] = 0

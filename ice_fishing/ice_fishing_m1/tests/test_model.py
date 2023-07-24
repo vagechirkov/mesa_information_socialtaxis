@@ -17,3 +17,7 @@ def tests_init():
 
     assert model.schedule.agents[0].state == "moving"
 
+    # do 10 steps
+    for _ in range(10):
+        model.step()
+
