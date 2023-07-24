@@ -3,3 +3,4 @@ mesa
 numpy
 scikit-learn
 scipy
+seaborn
