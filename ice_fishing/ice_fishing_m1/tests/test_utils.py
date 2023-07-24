@@ -1,6 +1,6 @@
 import pytest
 
-from ice_fishing.ice_fishing_m1.utils.utils import generate_resource_map
+from ice_fishing.ice_fishing_m1.utils.utils import generate_resource_map, mean_catch_ratio
 
 
 @pytest.mark.parametrize("cluster_std", [0.1, 0.5, 1.0])
@@ -16,3 +16,8 @@ def test_generate_resource_map(cluster_std):
 
     # check that min is greater than 0
     assert resource_map.min() >= 0
+
+
+def test_mean_catch_ratio():
+    result = mean_catch_ratio([1, 1, 1], 10)
+    assert result == 0.1

@@ -63,3 +63,10 @@ def generate_resource_map(width: int, height: int,
     # density[density < min_value] = 0
 
     return fish_map
+
+
+def mean_catch_ratio(agents_total_catch: list[int], total_number_of_fish: int) -> float:
+    """
+    Calculate the total catch ratio to evaluate the model for the given abundance of fish
+    """
+    return np.mean(agents_total_catch) / total_number_of_fish

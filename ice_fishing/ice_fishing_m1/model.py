@@ -4,7 +4,7 @@ from mesa.space import MultiGrid
 
 from .agent_fisher import RandomIceFisher, ImitatorIceFisher
 from .agent_fish import Fish
-from .utils.utils import generate_resource_map
+from .utils.utils import generate_resource_map, mean_catch_ratio
 
 
 class IceFishingModel(mesa.Model):
@@ -22,10 +22,9 @@ class IceFishingModel(mesa.Model):
         self.grid = MultiGrid(width, height, torus=False)
         self.datacollector = mesa.datacollection.DataCollector(
             model_reporters={
-                "Mean catch": lambda m: np.mean(
-                    [agent.total_catch for agent in m.schedule.agents if isinstance(agent, RandomIceFisher)]),
-                "Std catch": lambda m: np.std(
-                    [agent.total_catch for agent in m.schedule.agents if isinstance(agent, RandomIceFisher)]),
+                "Mean catch ration": lambda m: mean_catch_ratio(
+                    [agent.total_catch for agent in m.schedule.agents if isinstance(agent, RandomIceFisher)],
+                    fish_patch_n_samples),
             },
         )
         self.schedule = mesa.time.RandomActivation(self)
