@@ -78,3 +78,15 @@ def mean_catch_ratio(agents_total_catch: list[int], total_number_of_fish: int) -
     Calculate the total catch ratio to evaluate the model for the given abundance of fish
     """
     return np.mean(agents_total_catch) / total_number_of_fish
+
+
+def draw_circe_around_point(array: np.ndarray, x: int, y: int, radius: int = 3) -> np.ndarray:
+    assert radius > 0, "Radius should be larger than 0"
+    assert x < array.shape[0], "x should be smaller than the array width"
+    assert y < array.shape[1], "y should be smaller than the array height"
+
+    for xi in range(max(0, x - radius), min(array.shape[0], x + radius + 1)):
+        for yi in range(max(0, y - radius), min(array.shape[1], y + radius + 1)):
+            if (xi - x) ** 2 + (yi - y) ** 2 <= radius ** 2:
+                array[xi, yi] = 1
+    return array
