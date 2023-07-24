@@ -3,7 +3,7 @@ import numpy as np
 from mesa.space import MultiGrid
 
 from .agent_fisher import BaseIceFisher, ImitatorIceFisher
-from .agent_fish import Fish
+from .agent_fish import Fish, BeliefHolderAgent
 from .utils.utils import generate_resource_map, mean_catch_ratio
 
 
@@ -57,6 +57,7 @@ class IceFishingModel(mesa.Model):
             # this is needed to visualise the resource map in the server
             self._initialise_fish()
             self._update_fish_catch(p_catch=self.resource_map)
+            self._update_belief_holder()
 
     def _initialise_fish(self):
         # add uniform circle of fish in the middle
@@ -66,10 +67,25 @@ class IceFishingModel(mesa.Model):
                 self.schedule.add(f)
                 self.grid.place_agent(f, (x, y))
 
+                # add belief holder
+                b = BeliefHolderAgent(self.next_id(), self)
+                self.schedule.add(b)
+                self.grid.place_agent(b, (x, y))
+
     def _update_fish_catch(self, p_catch: np.ndarray):
         for agent in self.schedule.agents:
             if isinstance(agent, Fish):
                 agent.p_catch = p_catch[agent.pos]
+
+    def _update_belief_holder(self):
+        # find agent with id 0
+        agent_0 = [agent for agent in self.schedule.agents if agent.unique_id == 1 and hasattr(agent, 'belief')][0]
+
+        for agent in self.schedule.agents:
+            if isinstance(agent, BeliefHolderAgent):
+                agent.prior = agent_0.belief.prior_info[agent.pos]
+                agent.social = agent_0.belief.social_info[agent.pos]
+                agent.catch_rate = agent_0.belief.catch_rate[agent.pos]
 
     def step(self):
         self.schedule.step()
@@ -80,6 +96,7 @@ class IceFishingModel(mesa.Model):
         if self.server:
             # this is needed to visualise the resource map in the server
             self._update_fish_catch(p_catch=self.resource_map)
+            self._update_belief_holder()
 
     def run_model(self, step_count: int = 100) -> None:
         for _ in range(step_count):
