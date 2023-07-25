@@ -68,7 +68,7 @@ def draw_softmax_belief(agent):
     return draw_belief(agent, agent.softmax_belief if hasattr(agent, "softmax_belief") else 0)
 
 
-grid_size = 10
+grid_size = 20
 grid_canvas_size = 600
 
 grid = mesa.visualization.CanvasGrid(
@@ -98,7 +98,10 @@ model_params = {
     "fish_patch_n_samples": mesa.visualization.NumberInput("Fish abondance", value=2000),
 }
 
+# plots = [grid, grid_belief_prior, grid_belief_catch, grid_belief_social, grid_belief_softmax]
+plots = [grid]
+
 server = mesa.visualization.ModularServer(
-    IceFishingModel, [grid, grid_belief_prior, grid_belief_catch, grid_belief_social, grid_belief_softmax],
+    IceFishingModel, plots,
     "Ice Fishing", model_params
 )
