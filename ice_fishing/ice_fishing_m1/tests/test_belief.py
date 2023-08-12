@@ -9,9 +9,9 @@ def test_init_belief():
     """
     belief = Belief(100, 100)
 
-    assert belief.catch_rate.shape == (100, 100), "The shape of the catch rate should be (100, 100)"
-    assert belief.prior_info.shape == (100, 100), "The shape of the prior info should be (100, 100)"
-    assert belief.social_info.shape == (100, 100), "The shape of the social info should be (100, 100)"
+    assert belief.catch_likelihood.shape == (100, 100), "The shape of the catch rate should be (100, 100)"
+    assert belief.belief.shape == (100, 100), "The shape of the prior info should be (100, 100)"
+    assert belief.social_likelihood.shape == (100, 100), "The shape of the social info should be (100, 100)"
 
 
 def test_update_prior_info():
@@ -20,26 +20,31 @@ def test_update_prior_info():
     """
     belief = Belief(100, 100)
 
-    belief.update_prior_info([(50, 50)], radius=1)
+    belief.update_prior_belief(((50, 50),), radius=1)
+    assert np.allclose(belief.belief.sum(), 1, atol=1e-5), "The sum of the prior info should be 1"
+    assert np.allclose(belief.belief[50, 50], 0.2, atol=0.1), "The prior info should be a circle of 1 around 50, 50"
 
-    assert belief.prior_info.sum() == 5, "The prior info should be a circle of 1 around 50, 50"
-
-    belief.update_prior_info([(50, 50), (70, 70)], radius=1)
-
-    assert belief.prior_info.sum() == 10, "The prior info should be a circle of 1 around 50, 50 and 70, 70"
+    belief.update_prior_belief(((50, 50), (70, 70)), radius=1)
+    assert np.allclose(belief.belief.sum(), 1, atol=1e-5), "The sum of the prior info should be 1"
+    assert np.allclose(belief.belief[50, 50], 0.1, atol=0.1), "The prior info should be a circle of 1 around 50, 50"
 
 
-def test_softmax_weighted_belief():
-    """
-    Test the softmax_weighted_belief method
-    """
+def test_update_social_likelihood():
     belief = Belief(100, 100)
 
-    belief.update_prior_info([(50, 50)], radius=1)
-    belief.update_social_info([(50, 50)], radius=1)
-    belief.update_catch_rate((50, 50), 1)
+    belief.update_social_likelihood(((50, 50),), radius=1)
+    assert np.allclose(belief.social_likelihood[50, 50], 0.1, atol=1e-5)
 
-    belief.softmax_weighted_belief()
+    belief.update_social_likelihood(((50, 50), (70, 70)), radius=1)
+    assert np.allclose(belief.social_likelihood[50, 50], 0.1, atol=1e-5)
 
-    # check if the sum of the softmax belief is 1 with tolerance of 1e-5
-    assert np.isclose(belief.softmax_belief.sum(), 1, atol=1e-5), "The sum of the softmax belief should be 1"
+
+def test_update_catch_likelihood():
+    belief = Belief(100, 100)
+
+    belief.update_catch_likelihood(((50, 50),), (0.5,), radius=1)
+    assert np.allclose(belief.catch_likelihood[50, 50], 0.5, atol=1e-5)
+
+    belief.update_catch_likelihood(((50, 50), (70, 70)), (0.4, 0.7), radius=1)
+    assert np.allclose(belief.catch_likelihood[50, 50], 0.4, atol=1e-5)
+    assert np.allclose(belief.catch_likelihood[70, 70], 0.7, atol=1e-5)
