@@ -199,6 +199,10 @@ class GreedyBayesFisher(BaseIceFisher):
         x, y = np.unravel_index(np.argmax(np.random.random(belief.shape) * (belief == belief.max())),
                                 self.belief.belief.shape)
 
+        # with the small probability select random cell
+        if self.model.random.random() < 0.05:
+            x, y = self.get_far_destination()
+
         if (x, y) == self.pos:
             self.state = "fishing"
         else:
