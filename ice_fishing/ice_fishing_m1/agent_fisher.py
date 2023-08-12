@@ -23,7 +23,7 @@ class BaseIceFisher(mesa.Agent):
         self.last_catches = []
         self.destination = None
 
-        self.update_prior_belief([(model.grid.width // 2, model.grid.height // 2)])
+        self.belief.update_prior_belief()
 
     def move(self, destination: tuple[int, int]):
         """
@@ -130,8 +130,7 @@ class BaseIceFisher(mesa.Agent):
             self.state = "fishing"
         elif self.state == "fishing":
             rate = catch_rate(self.last_catches, window_size=50)
-            self.update_catch_rate_belief(rate)
-            self.update_social_belief()
+            self.update_belief()
             self.choose_action(rate)
         else:
             raise ValueError("Unknown state")
@@ -150,19 +149,18 @@ class BaseIceFisher(mesa.Agent):
         else:
             raise ValueError("Unknown state")
 
-    def update_social_belief(self):
-        # update social info
-        neighbors = self.model.grid.get_neighbors(self.pos, moore=True, include_center=False, radius=30)
-        other_locs = [n.pos for n in neighbors if isinstance(n, BaseIceFisher)]
-        self.belief.update_social_info(other_locs)
+    def update_belief(self):
+        # get close neighbors
+        close_neighbors = self.model.grid.get_neighbors(self.pos, moore=True, include_center=True, radius=10)
+        close_fishing_neighbors = [n for n in close_neighbors if isinstance(n, BaseIceFisher) and n.state == "fishing"]
+        locs = tuple([n.pos for n in close_fishing_neighbors] + [self.pos])
+        rates = tuple([catch_rate(n.last_catches) for n in close_fishing_neighbors] + [catch_rate(self.last_catches)])
 
-    def update_prior_belief(self, priors: list[tuple[int, int]]) -> None:
-        # update prior info
-        self.belief.update_prior_info(priors)
-
-    def update_catch_rate_belief(self, rate: float) -> None:
-        # update catch rate
-        self.belief.update_catch_rate(self.pos, rate)
+        all_neighbors = self.model.grid.get_neighbors(self.pos, moore=True, include_center=True,
+                                                      radius=self.model.grid.width)
+        all_fishing_neighbors = [n for n in all_neighbors if isinstance(n, BaseIceFisher) and n.state == "fishing"]
+        all_locs = tuple([n.pos for n in all_fishing_neighbors])
+        self.belief.update_belief(all_locs, locs, rates)
 
 
 class ImitatorIceFisher(BaseIceFisher):
@@ -189,15 +187,13 @@ class ImitatorIceFisher(BaseIceFisher):
         return neighbors_with_catches[0].pos
 
 
-class BeliefFisher(BaseIceFisher):
+class GreedyBayesFisher(BaseIceFisher):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
     def choose_action(self, rate: float = 0, temperature: float = 0.8):
-        self.belief.softmax_weighted_belief(temperature=temperature)
-
         # select the most promising cell
-        x, y = np.unravel_index(self.belief.softmax_belief.argmax(), self.belief.softmax_belief.shape)
+        x, y = np.unravel_index(self.belief.belief.argmax(), self.belief.belief.shape)
 
         if (x, y) == self.pos:
             self.state = "fishing"

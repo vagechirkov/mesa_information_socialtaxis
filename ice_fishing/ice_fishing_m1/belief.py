@@ -12,12 +12,14 @@ class Belief:
         self.belief = np.zeros((width, height))
 
     def update_prior_belief(self,
-                            locs: tuple[tuple[int, int], ...],
+                            locs: tuple[tuple[int, int], ...] = None,
                             radius: int = 3) -> None:
         self.belief = np.zeros_like(self.belief) + 1e-5  # add a small number to avoid 0 probability
-        for x, y in locs:
-            # make a circle around prior center location
-            self.belief += circle(np.zeros_like(self.belief), x, y, radius)
+
+        if locs is not None:
+            for x, y in locs:
+                # make a circle around prior center location
+                self.belief += circle(np.zeros_like(self.belief), x, y, radius)
         self.belief = normalize(self.belief)
 
     def update_social_likelihood(self,
