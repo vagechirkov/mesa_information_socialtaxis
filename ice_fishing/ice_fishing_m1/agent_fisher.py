@@ -156,7 +156,7 @@ class BaseIceFisher(mesa.Agent):
         locs = tuple([n.pos for n in close_fishing_neighbors] + [self.pos])
         rates = tuple([catch_rate(n.last_catches) for n in close_fishing_neighbors] + [catch_rate(self.last_catches)])
 
-        all_neighbors = self.model.grid.get_neighbors(self.pos, moore=True, include_center=True,
+        all_neighbors = self.model.grid.get_neighbors(self.pos, moore=True, include_center=False,
                                                       radius=self.model.grid.width)
         all_fishing_neighbors = [n for n in all_neighbors if isinstance(n, BaseIceFisher) and n.state == "fishing"]
         all_locs = tuple([n.pos for n in all_fishing_neighbors])
@@ -193,7 +193,11 @@ class GreedyBayesFisher(BaseIceFisher):
 
     def choose_action(self, rate: float = 0, temperature: float = 0.8):
         # select the most promising cell
-        x, y = np.unravel_index(self.belief.belief.argmax(), self.belief.belief.shape)
+        belief = self.belief.belief.copy()
+
+        # randomly select in case of multiple maxima
+        x, y = np.unravel_index(np.argmax(np.random.random(belief.shape) * (belief == belief.max())),
+                                self.belief.belief.shape)
 
         if (x, y) == self.pos:
             self.state = "fishing"
